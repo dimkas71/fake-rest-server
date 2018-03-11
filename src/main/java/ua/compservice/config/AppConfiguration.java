@@ -27,7 +27,7 @@ public class AppConfiguration {
 			//batchLoader().loadCounterValues();
 					
 			//batchLoader().loadCounterPayments();
-			batchLoader().loadContractCredit();
+			//batchLoader().loadContractCredit();
 			
 		};
 	}
