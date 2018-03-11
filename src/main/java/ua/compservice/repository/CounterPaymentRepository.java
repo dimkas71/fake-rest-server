@@ -1,0 +1,14 @@
+package ua.compservice.repository;
+
+import java.time.LocalDateTime;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import ua.compservice.model.Counter;
+import ua.compservice.model.CounterPayment;
+
+public interface CounterPaymentRepository extends JpaRepository<CounterPayment, Long>{
+	
+	CounterPayment findByDateAndCounter(LocalDateTime d, Counter c);
+
+}

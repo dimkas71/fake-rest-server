@@ -35,11 +35,12 @@ import lombok.NoArgsConstructor;
 import ua.compservice.model.Client;
 import ua.compservice.model.Contract;
 import ua.compservice.model.Counter;
+import ua.compservice.model.CounterPayment;
 import ua.compservice.model.CounterValuesOnPeriod;
-import ua.compservice.model.ServiceType;
 import ua.compservice.model.TradingPlace;
 import ua.compservice.repository.ClientRepository;
 import ua.compservice.repository.ContractRepository;
+import ua.compservice.repository.CounterPaymentRepository;
 import ua.compservice.repository.CounterRepository;
 import ua.compservice.repository.CounterValuesOnPeriodRepository;
 import ua.compservice.repository.TradingPlaceRepository;
@@ -68,6 +69,9 @@ public class RestServerDemoApplication implements ApplicationRunner {
 	private CounterValuesOnPeriodRepository counterValueRepository;
 	
 	@Autowired
+	private CounterPaymentRepository counterPaymentRepository;
+	
+	@Autowired
 	public RestServerDemoApplication(ContractRepository contractRepos, TradingPlaceRepository tpRepos, ClientRepository clientRepos, CounterRepository counterRepository) {
 		this.contractRepository = contractRepos;
 		this.tradingPlaceRepository = tpRepos;
@@ -89,12 +93,39 @@ public class RestServerDemoApplication implements ApplicationRunner {
 		//loadCounterValues();
 		
 		
-		
+		loadCounterPayments();
 		
 		
 			
 	}
 
+	private void loadCounterPayments() throws IOException {
+		File json = ResourceUtils.getFile("classpath:counterPayments.json");
+		
+		String content = new String(Files.readAllBytes(json.toPath()));
+		
+		ObjectMapper om = new ObjectMapper();
+		CounterPayment[] payments = om.readValue(content, CounterPayment[].class);
+		
+		Arrays.asList(payments)
+			.stream()
+			.forEach(p -> {
+				
+				Counter counter = counterRepository.findByCode(p.getCounter().getCode());
+				
+				if (counter != null) {
+					
+					CounterPayment payment = counterPaymentRepository.findByDateAndCounter(p.getDate(), counter);
+					
+					if (payment == null) {
+						payment = counterPaymentRepository.save(new CounterPayment(null, p.getDate(), counter, p.getAmount()));
+					}
+					
+				}
+			});
+		
+	}
+	
 	private void loadCounterValues()
 			throws FileNotFoundException, IOException, JsonParseException, JsonMappingException {
 		File json = ResourceUtils.getFile("classpath:counterValues.json");
