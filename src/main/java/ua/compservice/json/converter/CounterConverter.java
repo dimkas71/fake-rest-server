@@ -9,6 +9,7 @@ public class CounterConverter extends StdConverter<String, Counter> {
 	@Override
 	public Counter convert(String code) {
 		//Create some fake object that holding a counter code here...
+		if ("".equals(code)) return null;
 		return new Counter(null, code, null, null, null, 0.0f, 0, null, false, null);
 	}
 

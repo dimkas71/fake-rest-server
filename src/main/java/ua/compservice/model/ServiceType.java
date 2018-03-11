@@ -5,7 +5,7 @@ import java.util.Arrays;
 
 public enum ServiceType {
 	
-	ELECTRICITY("Электричество"),
+	ELECTRICITY("Электроенергия"),
 	VIDEO("Видеонаблюдение"),
 	SERVICE("Услуги рынка"),
 	NONE("Не задана услуга");
