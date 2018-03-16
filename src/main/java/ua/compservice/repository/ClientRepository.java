@@ -11,6 +11,7 @@ public interface ClientRepository extends JpaRepository<Client, Long>{
 	
 	Client findByCode(String code);
 	Client findByDescription(String description);
+	
 	List<Client> findByTaxCode(String taxCode);
 	
 }

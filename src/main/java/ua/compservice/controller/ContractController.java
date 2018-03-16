@@ -28,9 +28,23 @@ public class ContractController {
 		return contractRepository.findAll();
 	}
 	
-	@GetMapping("{numer}")
+	@GetMapping("{number}")
 	public Contract byNumber(@PathVariable("number") String number) {
 		return this.contractRepository.findByNumber(number);
 	}
 
+	@GetMapping("id/{id}")
+	public Contract byId(@PathVariable("id") Long id) {
+		return this.contractRepository.findOne(id);
+	}
+	
+	@GetMapping("byclient/{code}")
+	public List<Contract> byClient(@PathVariable("code") String code) {
+		
+		return this.contractRepository.findByClientCode(code);
+
+		
+	}
+	
+	
 }
