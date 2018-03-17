@@ -46,5 +46,11 @@ public class ContractController {
 		
 	}
 	
+	@GetMapping("byNumber/{number}")
+	public List<Contract> byNumberStartingWith(@PathVariable("number") String number) {
+		return contractRepository.findByNumberStartingWith(number);
+	}
+	
+	
 	
 }
