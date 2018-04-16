@@ -11,17 +11,17 @@ import org.springframework.data.repository.query.Param;
 import ua.compservice.model.Counter;
 import ua.compservice.model.CounterValuesOnPeriod;
 
-public interface CounterValuesOnPeriodRepository extends JpaRepository<CounterValuesOnPeriod, Long>{
-	
+public interface CounterValuesOnPeriodRepository extends JpaRepository<CounterValuesOnPeriod, Long> {
+
 	CounterValuesOnPeriod findByPeriodAndCounter(LocalDate period, Counter c);
 	
 	
 	
-	//@Query("select cv from CounterValuesOnPeriod cv where cv.counter in :counters")
-	
-	@Query("select cv from CounterValuesOnPeriod cv\n" + 
-			"inner join (select cv.id id, max(cv.period) period from CounterValuesOnPeriod cv where cv.counter in :counters) tb\n" + 
-			"on cv.id = tb.id and cv.period = tb.period")
+	@Query(value = "select cvop.id, cvop.period, cvop.value, cvop.counter_id from COUNTER_VALUES_ON_PERIOD as cvop \n"
+			+ "inner join (SELECT max(period) as period, counter_id as counter_id FROM COUNTER_VALUES_ON_PERIOD \n"
+			+ "where counter_id in :counters\n" + "group by counter_id) inner_data\n"
+			+ "on cvop.period = inner_data.period\n"
+			+ "and cvop.counter_id = inner_data.counter_id", nativeQuery = true)
 	List<CounterValuesOnPeriod> latestValuesOf(@Param("counters") Collection<Counter> counters);
 
 }

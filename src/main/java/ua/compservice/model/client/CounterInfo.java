@@ -8,14 +8,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CounterInfo {
-	
+
+
 	private Long id;
-	
-	private String description;
+
 	private String factoryNumber;
-	private int limit;
-	private String contractNumber;
-	
 	private Long value;
 	
 
