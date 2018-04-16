@@ -1,7 +1,11 @@
 package ua.compservice.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,18 +14,20 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ua.compservice.model.Contract;
 import ua.compservice.repository.ContractRepository;
+import ua.compservice.repository.CounterRepository;
 
 @RestController
 @RequestMapping("/contract")
 public class ContractController {
 	
+	private static final Logger logger = LoggerFactory.getLogger(ContractController.class.getSimpleName());
 	
-	private ContractRepository contractRepository;
+	@Autowired 
+	private CounterRepository counterRepos;
 	
 	@Autowired
-	public ContractController(ContractRepository repos) {
-		this.contractRepository = repos;
-	}
+	private ContractRepository contractRepository;
+	
 	
 	@GetMapping("list")
 	public List<Contract> list() {
@@ -47,9 +53,19 @@ public class ContractController {
 	}
 	
 	@GetMapping("byNumber/{number}")
-	public List<Contract> byNumberStartingWith(@PathVariable("number") String number) {
-		return contractRepository.findByNumberStartingWith(number);
+	public Map<String, Object> byNumberStartingWith(@PathVariable("number") String number) {
+		
+		List<Contract> contracts = contractRepository.findByNumberStartingWith(number);
+		
+		logger.info("counters: {}", counterRepos.count());
+		
+		Map<String, Object> map = new HashMap<>();
+		
+		map.put("contracts", contracts);
+		return map;
 	}
+	
+	
 	
 	
 	

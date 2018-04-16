@@ -1,0 +1,25 @@
+select credit.id, credit.credit, credit.date, credit.contract_id, credit.counter_id, credit.service from contract_credit as credit
+inner join
+(SELECT max(date) as date, contract_id as contract_id, service as service FROM CONTRACT_CREDIT 
+where contract_id in ('4460', '3626')
+group by contract_id, service) as inner_data
+on credit.contract_id = inner_data.contract_id
+and credit.date = inner_data.date
+and credit.service = inner_data.service
+
+
+
+select cv from CounterValuesOnPeriod cv
+inner join (select cv.id id, max(cv.period) period from CounterValuesOnPeriod cv where cv.counter in :counters) tb
+on cv.id = tb.id and cv.period = tb.period
+
+select cvop.counter_id, cvop.value from COUNTER_VALUES_ON_PERIOD as cvop
+inner join (SELECT counter_id, max(values.period) as period FROM COUNTER_VALUES_ON_PERIOD  as values
+where counter_id in ('4848', '3')
+group by counter_id) as innert
+on cvop.counter_id = innert.counter_id
+and cvop.period = innert.period
+
+SELECT * FROM COUNTER_VALUES_ON_PERIOD 
+where counter_id in ('4848', '3')
+order by period desc
