@@ -40,8 +40,5 @@ public class CounterValuesOnPeriod {
 	
 	@JsonProperty("Показание")
 	private Long value;
-	
-	
-	
 
 }
