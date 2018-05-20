@@ -1,8 +1,14 @@
 package ua.compservice.controller;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import javax.websocket.server.PathParam;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,13 +21,18 @@ import org.springframework.web.bind.annotation.RestController;
 import ua.compservice.model.Contract;
 import ua.compservice.model.ContractCredit;
 import ua.compservice.model.Counter;
+import ua.compservice.model.CounterPayment;
 import ua.compservice.model.CounterValuesOnPeriod;
 import ua.compservice.model.ServiceType;
+import ua.compservice.model.client.ContractCounterMeterInfo;
+import ua.compservice.model.client.ContractCounterPaymentInfo;
 import ua.compservice.model.client.ContractInfo;
 import ua.compservice.model.client.CounterInfo;
 import ua.compservice.model.client.CreditInfo;
 import ua.compservice.repository.ContractCreditRepository;
 import ua.compservice.repository.ContractRepository;
+import ua.compservice.repository.CounterPaymentRepository;
+import ua.compservice.repository.CounterRepository;
 import ua.compservice.repository.CounterValuesOnPeriodRepository;
 
 @RestController
@@ -33,14 +44,18 @@ public class ContractInfoController {
 	@Autowired
 	private ContractRepository contractRepos;
 	
-	
 	@Autowired
 	private CounterValuesOnPeriodRepository counterValuesRepos;
-
 
 	@Autowired
 	private ContractCreditRepository contractCreditRepos;
 
+	@Autowired
+	private CounterRepository counterRepository;
+	
+	@Autowired
+	private CounterPaymentRepository counterPaymentRepo;
+	
 	@GetMapping("{contract_number}")
 	public List<ContractInfo> list(@PathVariable("contract_number") String contractNumber) {
 
@@ -74,4 +89,40 @@ public class ContractInfoController {
 	}
 
 
+	@GetMapping("{id}/meter")
+	public List<ContractCounterMeterInfo> counterMetersByPeriod(@PathVariable("id") Long counterId, @PathParam("begin") String begin, @PathParam("end") String end) {
+		
+		Counter counter = counterRepository.findOne(counterId);
+		
+		LocalDate from = LocalDate.parse(begin, DateTimeFormatter.BASIC_ISO_DATE);
+		LocalDate to = LocalDate.parse(end, DateTimeFormatter.BASIC_ISO_DATE);
+		
+		List<CounterValuesOnPeriod> countersByPeriod = counterValuesRepos.findByPeriodBetweenAndCounter(from, to, counter);
+		
+		
+		return countersByPeriod.stream()
+			.map(cbp -> new ContractCounterMeterInfo(counter.getId(), cbp.getPeriod(), cbp.getValue()))
+			.sorted(Comparator.comparing(ContractCounterMeterInfo::getPeriod))
+			.collect(Collectors.toList());
+	}
+	
+	
+	@GetMapping("{id}/payment")
+	public List<ContractCounterPaymentInfo> counterPaymentByPeriod(@PathVariable("id") Long counterId, @PathParam("begin") String begin, @PathParam("end") String end) {
+		
+		Counter counter = counterRepository.findOne(counterId);
+		
+		LocalDateTime from = LocalDate.parse(begin, DateTimeFormatter.BASIC_ISO_DATE).atStartOfDay();
+		LocalDateTime to = LocalDate.parse(end, DateTimeFormatter.BASIC_ISO_DATE).plusDays(1).atStartOfDay();
+		
+		List<CounterPayment> counterPayments = counterPaymentRepo.findByDateBetweenAndCounter(from, to, counter);
+		
+		
+		return counterPayments.stream()
+			.map(cp -> new ContractCounterPaymentInfo(counter.getId(), cp.getDate().toLocalDate(), cp.getAmount()))
+			.sorted(Comparator.comparing(ContractCounterPaymentInfo::getPeriod))
+			.collect(Collectors.toList());
+	}
+	
+	
 }
